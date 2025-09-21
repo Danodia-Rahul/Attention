@@ -9,18 +9,20 @@ app = FastAPI(title="APP")
 
 
 class PredictionInput(BaseModel):
-    Temperature: float
-    Humidity: float
-    Moisture: float
-    Soil_Type: str
-    Crop_Type: str
-    Nitrogen: float
-    Potassium: float
-    Phosphorous: float
+    Age: float
+    Income: float
+    Dependents: float
+    Occupation: str
+    Credit: float
+    Property: str
+
+
+occupation_dict = {"Employed": 0, "Self-Employed": 1, "Unemployed": 2}
+property_dict = {"Apartment": 0, "Condo": 1, "House": 3}
 
 
 @app.get("/")
-def home():
+def root():
     return {"status": "ok"}
 
 
