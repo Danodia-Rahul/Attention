@@ -27,7 +27,7 @@ def convert_to_numpy_arr(data: PredictionInput):
     occupation_code = occupation_dict[data.Occupation]
     property_code = property_dict[data.Property]
 
-    arr = [data.Age, data.Dependents, occupatoin_code, data.Credit, property_code]
+    arr = [data.Age, data.Dependents, occupation_code, data.Credit, property_code]
     return np.array([arr])
 
 
@@ -35,7 +35,7 @@ def get_predictions(input):
     data_payload = input.astype(np.float32)
     prediction = Session.run(None, {Input_name: data_payload})[0]
 
-    return predictoinn
+    return prediction
 
 
 @app.get("/")
