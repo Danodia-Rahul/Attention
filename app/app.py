@@ -1,11 +1,9 @@
-from typing import List
-
 import numpy as np
 import onnxruntime as ort
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI(title="APP")
+app = FastAPI()
 
 
 class PredictionInput(BaseModel):
@@ -20,6 +18,25 @@ class PredictionInput(BaseModel):
 occupation_dict = {"Employed": 0, "Self-Employed": 1, "Unemployed": 2}
 property_dict = {"Apartment": 0, "Condo": 1, "House": 3}
 
+Session = ort.InferenceSession("model.onnx", providers=["CPUExecutionProvider"])
+
+Input_name = Session.get_inputs()[0].name
+
+
+def convert_to_numpy_arr(data: PredictionInput):
+    occupation_code = occupation_dict[data.Occupation]
+    property_code = property_dict[data.Property]
+
+    arr = [data.Age, data.Dependents, occupatoin_code, data.Credit, property_code]
+    return np.array([arr])
+
+
+def get_predictions(input):
+    data_payload = input.astype(np.float32)
+    prediction = Session.run(None, {Input_name: data_payload})[0]
+
+    return predictoinn
+
 
 @app.get("/")
 def root():
@@ -33,4 +50,9 @@ def health():
 
 @app.post("/predict")
 def predict(data: PredictionInput):
-    pass
+    try:
+        input = convert_to_numpy_arr(data)
+        prediction = get_predictions(input)
+        return {"prediction": prediction}
+    except Exception as e:
+        raise HTTPException(500, detail=str(e))
