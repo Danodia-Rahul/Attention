@@ -18,7 +18,7 @@ class PredictionInput(BaseModel):
 occupation_dict = {"Employed": 0, "Self-Employed": 1, "Unemployed": 2}
 property_dict = {"Apartment": 0, "Condo": 1, "House": 3}
 
-Session = ort.InferenceSession("model.onnx", providers=["CPUExecutionProvider"])
+Session = ort.InferenceSession("model.onnx")
 
 Input_name = Session.get_inputs()[0].name
 
@@ -27,8 +27,17 @@ def convert_to_numpy_arr(data: PredictionInput):
     occupation_code = occupation_dict[data.Occupation]
     property_code = property_dict[data.Property]
 
-    arr = [data.Age, data.Dependents, occupation_code, data.Credit, property_code]
-    return np.array([arr])
+    arr = [
+        [
+            data.Age,
+            data.Income,
+            data.Dependents,
+            occupation_code,
+            data.Credit,
+            property_code,
+        ]
+    ]
+    return np.array(arr)
 
 
 def get_predictions(input):
