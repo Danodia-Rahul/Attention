@@ -37,13 +37,13 @@ def convert_to_numpy_arr(data: PredictionInput):
             property_code,
         ]
     ]
+    print(arr)
     return np.array(arr)
 
 
 def get_predictions(input):
     data_payload = input.astype(np.float32)
     prediction = Session.run(None, {Input_name: data_payload})[0]
-
     return prediction
 
 
@@ -62,6 +62,6 @@ def predict(data: PredictionInput):
     try:
         input = convert_to_numpy_arr(data)
         prediction = get_predictions(input)
-        return {"prediction": prediction}
+        return {"prediction": float(prediction[0][0])}
     except Exception as e:
         raise HTTPException(500, detail=str(e))
