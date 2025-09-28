@@ -1,6 +1,15 @@
+import time
+
 import numpy as np
 import onnxruntime as ort
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    Counter,
+    Gauge,
+    Histogram,
+    generate_latest,
+)
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -45,6 +54,61 @@ def get_predictions(input):
     data_payload = input.astype(np.float32)
     prediction = Session.run(None, {Input_name: data_payload})[0]
     return prediction
+
+
+REQUEST_COUNT = Counter(
+    "total_app_requests", "Total number of requets", ["method", "path", "status"]
+)
+
+REQUEST_LATENCY = Histogram(
+    "application_request_duration",
+    "Time to complete requests",
+    ["method", "path"],
+    buckets=(0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1, 2, 5, 10),
+)
+
+REQUEST_ERROR = Counter(
+    "application_request_error",
+    "Total Number of request erros",
+    ["method", "path", "status"],
+)
+
+REQUEST_QUEUE = Gauge(
+    "application_request_in_queue", "Current number of requsts pending"
+)
+
+
+@app.middleware("http")
+async def count_requests(request, call_next):
+    REQUEST_QUEUE.inc()
+    start_time = time.time()
+    try:
+        response = await call_next(request)
+        status = response.status_code
+    except Exception:
+        status = 500
+        raise
+    finally:
+        end_time = time.time()
+        REQUEST_QUEUE.dec()
+        REQUEST_LATENCY.labels(method=request.method, path=request.url.path).observe(
+            end_time - start_time
+        )
+        REQUEST_COUNT.labels(
+            method=request.method, path=request.url.path, status=status
+        ).inc()
+
+        if status >= 400:
+            REQUEST_ERROR.labels(
+                method=request.method, path=request.url.path, status=status
+            ).inc()
+
+    return response
+
+
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/")
