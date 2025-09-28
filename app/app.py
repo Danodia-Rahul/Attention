@@ -82,6 +82,8 @@ REQUEST_QUEUE = Gauge(
 async def count_requests(request, call_next):
     REQUEST_QUEUE.inc()
     start_time = time.time()
+    status = 0
+    response = None
     try:
         response = await call_next(request)
         status = response.status_code
