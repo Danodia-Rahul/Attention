@@ -25,5 +25,13 @@ services:
     ports:
       - "9100:9100"
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
 volumes:
   prometheus_data:
