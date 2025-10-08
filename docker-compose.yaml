@@ -14,7 +14,6 @@ services:
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
-
     command:
       - "--config.file=/etc/prometheus/prometheus.yaml"
     restart: unless-stopped
@@ -32,6 +31,20 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+    restart: unless-stopped
+
+  alert-manager:
+    image: prom/alertmanager:latest
+    container_name: alert-manager
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yaml
+    command:
+      - "-config.file=/etc/alertmanager/alertmanager.yaml"
+    restart: unless-stopped
 
 volumes:
   prometheus_data:
+  alertmanager_data:
