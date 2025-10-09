@@ -41,6 +41,8 @@ services:
     volumes:
       - alertmanager_data:/alertmanager
       - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yaml
+    env_file:
+      - .env
     command:
       - "-config.file=/etc/alertmanager/alertmanager.yaml"
     restart: unless-stopped
