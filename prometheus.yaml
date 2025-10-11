@@ -16,7 +16,7 @@ scrape_configs:
           - "app:8000"
 
 rule_files:
-  - "etc/prometheus/rules/rule.yaml"
+  - "etc/prometheus/rules/rules.yaml"
 
 alerting:
   alertmanagers:
