@@ -1,0 +1,41 @@
+global:
+  smtp_smarthost: "${SMTP_SMARTHOST}"
+  smtp_from: "${SMTP_FROM}"
+  smtp_auth_username: "${SMTP_USERNAME}"
+  smtp_auth_password: "${SMTP_PASSWORD}"
+  smtp_require_tls: true
+
+route:
+  receiver: "email-receiver"
+  group_by: ["job"]
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 1h
+
+  routes:
+    - receiver: "app-receiver"
+      matchers:
+        - job="app"
+
+    - receiver: "monitoring-receiever"
+      matchers:
+        - job="prometheus"
+
+receivers:
+  - name: "email-receiver"
+    email_configs:
+      - to: "${ALERT_TO}"
+
+  - name: "app-receiver"
+    email_configs:
+      - to: "${ALERT_TO}"
+
+  - name: "monitoring-receiever"
+    email_configs:
+      - to: "${ALERT_TO}"
+
+inhibit_rules:
+
+mute_time_intervals:
+
+time_intervals:
