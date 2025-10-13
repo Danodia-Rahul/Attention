@@ -1,0 +1,26 @@
+groups:
+  - name: app-alert
+    interval: 30s
+    rules:
+      - alert: application down
+        expr: up{job="app"} == 0
+        for: 1m
+        lables:
+          severity: critical
+          job: app
+        annotation:
+          summary: "Application container is down"
+          description: "The app container is not reponding for more than 1 mintue"
+
+  - name: prometheus-alert
+    interval: 30s
+    rules:
+      - alert: prometheus down
+        expr: up{job="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          job: prometheus
+        annotation:
+          summary: "Prometheus is down"
+          description: "Prometheus is not responding for more than 1 minute"
