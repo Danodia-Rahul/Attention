@@ -17,7 +17,7 @@ route:
       matchers:
         - job="app"
 
-    - receiver: "monitoring-receiever"
+    - receiver: "monitoring-receiver"
       matchers:
         - job="prometheus"
 
@@ -30,12 +30,6 @@ receivers:
     email_configs:
       - to: "${ALERT_TO}"
 
-  - name: "monitoring-receiever"
+  - name: "monitoring-receiver"
     email_configs:
       - to: "${ALERT_TO}"
-
-inhibit_rules:
-
-mute_time_intervals:
-
-time_intervals:
