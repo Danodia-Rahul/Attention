@@ -39,13 +39,15 @@ services:
     container_name: alert-manager
     ports:
       - "9093:9093"
+    depends_on:
+      - prometheus
     volumes:
       - alertmanager_data:/alertmanager
       - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yaml
     env_file:
       - .env
     command:
-      - "-config.file=/etc/alertmanager/alertmanager.yaml"
+      - "--config.file=/etc/alertmanager/alertmanager.yaml"
     restart: unless-stopped
 
 volumes:
