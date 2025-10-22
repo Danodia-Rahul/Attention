@@ -13,8 +13,8 @@ services:
       - "9090:9090"
     volumes:
       - prometheus_data:/prometheus
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
-      - ./rules.yaml:/etc/prometheus/rules/rules.yaml
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus/rules.yaml:/etc/prometheus/rules/rules.yaml
     command:
       - "--config.file=/etc/prometheus/prometheus.yaml"
     restart: unless-stopped
@@ -34,20 +34,33 @@ services:
       - prometheus
     restart: unless-stopped
 
+  configer:
+    image: alpine:latest
+    container_name: alertmanager-helper
+    volumes:
+      - ./alertmanager/alertmanager.yaml:/etc/alertmanager.template.yaml
+      - alertmanager_data:/etc/alertmanager
+    env_file:
+      - .env
+    command: >
+      sh -c "apk add --no-cache gettext &&
+             envsubst < /etc/alertmanager.template.yaml > /etc/alertmanager/alertmanager.yaml"
+
   alert-manager:
     image: prom/alertmanager:latest
     container_name: alert-manager
     ports:
       - "9093:9093"
     depends_on:
-      - prometheus
+      configer:
+        condition: service_completed_successfully
+      prometheus:
+        condition: service_started
     volumes:
-      - alertmanager_data:/alertmanager
-      - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yaml
-    env_file:
-      - .env
+      - alertmanager_data:/etc/alertmanager
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yaml"
+      - "--cluster.listen-address="
     restart: unless-stopped
 
 volumes:
