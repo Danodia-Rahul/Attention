@@ -27,6 +27,36 @@ Requirements:
 
 ---
 
+## Environment Configuration
+
+Before starting the containers, you must configure environment variables for email alerts.
+
+### Step 1: Copy the Example File
+
+```bash
+cp .env.example .env
+```
+
+### Step 2: Update the `.env` File
+
+Open the `.env` file and replace the placeholder values with your actual email credentials:
+
+```env
+SMTP_SMARTHOST=smtp.gmail.com:587
+SMTP_FROM=yourEmail@gmail.com
+SMTP_USERNAME=yourEmail@gmail.com
+SMTP_PASSWORD=your_16_character_password
+ALERT_TO=recipientEmail@gmail.com
+```
+
+### Notes
+
+* If using Gmail, you must generate a **16-character App Password**.
+* Do not use your regular Gmail password.
+* Make sure 2-Step Verification is enabled on your Google account before generating an App Password.
+
+---
+
 ## Start the Setup
 
 Run the following command:
