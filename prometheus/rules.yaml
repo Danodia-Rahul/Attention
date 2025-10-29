@@ -28,3 +28,18 @@ groups:
         annotations:
           summary: "Prometheus is down"
           description: "Prometheus is not responding for more than 1 minute"
+
+  - name: error-alert
+    labels:
+      team: "team C"
+    interval: 30s
+    rules:
+      - alert: too many error responses
+        expr: (rate(application_request_error_total{path="/predict"}[5m]) / rate(total_app_requests_total{path="/predict"}[5m])) > 0.05
+        for: 30s
+        labels:
+          severity: critical
+          job: app
+        annotations:
+          summary: "too many error for responses for application"
+          description: "applicaion is not behaving the way it should"
